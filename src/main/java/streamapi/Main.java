@@ -1,7 +1,11 @@
 package streamapi;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /** Starter for the stream api task. */
 public class Main {
@@ -10,7 +14,7 @@ public class Main {
      *
      * @param args command line parameters, not used
      */
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
 
         // Task I: Students
 
@@ -19,7 +23,7 @@ public class Main {
         // Task III: Random
 
         // Task IV+V: Resources
-
+        System.out.println(resources("file.txt"));
     }
 
     /**
@@ -69,10 +73,20 @@ public class Main {
      * @param path Name of the file to be accessed within the resource folder.
      * @return An open {@link InputStream} for the resource file
      */
+    /**
+     * Öffnet eine Ressource aus dem Ressourcen-Ordner als InputStream.
+     *
+     * @param path Dateiname innerhalb des Ressourcen-Ordners
+     * @return InputStream der Ressource
+     */
     private static InputStream getResourceAsStream(String path) {
-        // TODO
-        throw new UnsupportedOperationException();
+        InputStream inputStream = Main.class.getResourceAsStream("/streamapi/" + path);
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Ressource nicht gefunden: " + path);
+        }
+        return inputStream;
     }
+
 
     /**
      * Task V: Read resources.
@@ -84,8 +98,24 @@ public class Main {
      * @param path Name of the file to be accessed within the resource folder
      * @return String of all matching lines, separated by {@code "\n"}
      */
-    public static String resources(String path) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
+    /**
+     * Liest die Datei über getResourceAsStream ein,
+     * filtert alle Zeilen, die mit 'a' anfangen und mind. 2 Zeichen lang sind,
+     * und verbindet sie mit Zeilenumbruch.
+     *
+     * @param path Pfad der Ressource
+     * @return Gefilterter und verbundener String
+     * @throws IOException falls Einlesen fehlschlägt
+     */
+    public static String resources(String path) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getResourceAsStream(path)))) {
+            return reader.lines()
+                .filter(line -> line.startsWith("a"))
+                .filter(line -> line.length() >= 2)
+                .collect(Collectors.joining("\n"));
+        }
+
+
+
+}
 }

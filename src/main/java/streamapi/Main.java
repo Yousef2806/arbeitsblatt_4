@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /** Starter for the stream api task. */
 public class Main {
@@ -13,7 +14,7 @@ public class Main {
      *
      * @param args command line parameters, not used
      */
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
 
         // Task I: Students
 
@@ -72,10 +73,20 @@ public class Main {
      * @param path Name of the file to be accessed within the resource folder.
      * @return An open {@link InputStream} for the resource file
      */
+    /**
+     * Öffnet eine Ressource aus dem Ressourcen-Ordner als InputStream.
+     *
+     * @param path Dateiname innerhalb des Ressourcen-Ordners
+     * @return InputStream der Ressource
+     */
     private static InputStream getResourceAsStream(String path) {
-        // TODO
-        throw new UnsupportedOperationException();
+        InputStream inputStream = Main.class.getResourceAsStream("/streamapi/" + path);
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Ressource nicht gefunden: " + path);
+        }
+        return inputStream;
     }
+
 
     /**
      * Task V: Read resources.
@@ -87,32 +98,24 @@ public class Main {
      * @param path Name of the file to be accessed within the resource folder
      * @return String of all matching lines, separated by {@code "\n"}
      */
-    public static String resources(String path) {
-        // TODO
-        StringBuilder result = new StringBuilder();
-
-        try (InputStream stream = getResourceAsStream(path)) {
-            BufferedReader r = new BufferedReader(new InputStreamReader(stream));
-
-            List<String> allLines = new ArrayList<>();
-
-            String newLine = r.readLine();
-            while (newLine != null) {
-                allLines.add(newLine);
-                newLine = r.readLine();
-            }
-
-            for (int i = 1; i < allLines.size(); i++) {
-                String s = allLines.get(i);
-                if (s.startsWith("a") && !(s.length() < 2)) {
-                    result.append(allLines.get(i)).append("\n");
-                }
-            }
-
-        } catch (IOException e) {
-            System.err.println("Ouch, that didn't work: \n" + e.getMessage());
+    /**
+     * Liest die Datei über getResourceAsStream ein,
+     * filtert alle Zeilen, die mit 'a' anfangen und mind. 2 Zeichen lang sind,
+     * und verbindet sie mit Zeilenumbruch.
+     *
+     * @param path Pfad der Ressource
+     * @return Gefilterter und verbundener String
+     * @throws IOException falls Einlesen fehlschlägt
+     */
+    public static String resources(String path) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getResourceAsStream(path)))) {
+            return reader.lines()
+                .filter(line -> line.startsWith("a"))
+                .filter(line -> line.length() >= 2)
+                .collect(Collectors.joining("\n"));
         }
 
-        return result.toString();
-    }
+
+
+}
 }
